@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 /**
  * 区块
@@ -58,10 +59,12 @@ public class Block {
      * @return
      */
     public static Block newBlock(String previousHash, String data) {
-        Block block = new Block(ZERO_HASH, previousHash, data, Instant.now().getEpochSecond());
+        Block block = new Block(ZERO_HASH, previousHash, data, System.currentTimeMillis());
         block.setHash();
         return block;
     }
+
+
 
     /**
      * 计算区块Hash
