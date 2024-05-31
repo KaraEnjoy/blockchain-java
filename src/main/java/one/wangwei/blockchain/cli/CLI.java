@@ -91,7 +91,7 @@ public class CLI {
 
             if (block != null) {
                 boolean validate = ProofOfWork.newProofOfWork(block).validate();
-                System.out.println(block.toString() + ", validate = " + validate);
+                System.out.println(block + ", validate = " + validate);
             }
         }
     }

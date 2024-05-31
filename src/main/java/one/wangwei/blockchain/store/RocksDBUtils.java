@@ -117,7 +117,9 @@ public class RocksDBUtils {
      */
     public void putBlock(Block block) {
         try {
+            // 元数据
             blocksBucket.put(block.getHash(), SerializeUtils.serialize(block));
+            // 每个 block data
             db.put(SerializeUtils.serialize(BLOCKS_BUCKET_KEY), SerializeUtils.serialize(blocksBucket));
         } catch (RocksDBException e) {
             throw new RuntimeException("Fail to put block ! ", e);
