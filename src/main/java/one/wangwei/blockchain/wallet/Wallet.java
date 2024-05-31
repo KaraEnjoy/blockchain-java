@@ -39,7 +39,7 @@ public class Wallet implements Serializable {
      */
     private BCECPrivateKey privateKey;
     /**
-     * 公钥
+     * 公钥， 一个私钥可能会产生很多的公钥
      */
     private byte[] publicKey;
 
