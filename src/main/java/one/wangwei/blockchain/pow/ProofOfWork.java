@@ -92,14 +92,16 @@ public class ProofOfWork {
      */
     private byte[] prepareData(long nonce) {
         byte[] prevBlockHashBytes = {};
+
         if (StringUtils.isNoneBlank(this.getBlock().getPrevBlockHash())) {
             prevBlockHashBytes = new BigInteger(this.getBlock().getPrevBlockHash(), 16).toByteArray();
         }
 
+
         return ByteUtils.merge(
-                prevBlockHashBytes,
-                this.getBlock().hashTransaction(),
-                ByteUtils.toBytes(this.getBlock().getTimeStamp()),
+                prevBlockHashBytes, // 前一区块 hash
+                this.getBlock().hashTransaction(), // 交易数据 hash
+                ByteUtils.toBytes(this.getBlock().getTimeStamp()),  // 当前区块、时间戳
                 ByteUtils.toBytes(TARGET_BITS),
                 ByteUtils.toBytes(nonce)
         );

@@ -20,11 +20,13 @@ public class TXInput {
      */
     private byte[] txId;
     /**
-     * 交易输出索引
+     * 交易输出索引，存储的是交易中这个交易输出的索引位置（因为一笔交易可能包含多个交易输出）
      */
     private int txOutputIndex;
     /**
-     * 解锁脚本
+     * 解锁脚本：主要是提供用于交易输出中 ScriptPubKey 所需的验证数据。
+     * 1. 如果这个数据被验证正确，那么相应的交易输出将被解锁，并且其中的 value 能够生成新的交易输出；
+     * 2. 如果不正确，那么相应的交易输出将不能被交易输入所引用；
      */
     private String scriptSig;
 

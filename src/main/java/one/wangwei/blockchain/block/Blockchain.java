@@ -51,7 +51,10 @@ public class Blockchain {
      * @return
      */
     public static Blockchain createBlockchain(String address) {
+        // 获取最新的 hash
         String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
+
+        // 新建创世区块
         if (StringUtils.isBlank(lastBlockHash)) {
             // 创建 coinBase 交易
             Transaction coinbaseTX = Transaction.newCoinbaseTX(address, "");
@@ -60,6 +63,7 @@ public class Blockchain {
             RocksDBUtils.getInstance().putBlock(genesisBlock);
             RocksDBUtils.getInstance().putLastBlockHash(lastBlockHash);
         }
+
         return new Blockchain(lastBlockHash);
     }
 
@@ -171,23 +175,22 @@ public class Blockchain {
      * @return
      */
     private Transaction[] findUnspentTransactions(String address) throws Exception {
+
+        // 根据地址信息遍历 获取所有的交易花费信息
         Map<String, int[]> allSpentTXOs = this.getAllSpentTXOs(address);
         Transaction[] unspentTxs = {};
 
         // 再次遍历所有区块中的交易输出
         for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {
             Block block = blockchainIterator.next();
+
             for (Transaction transaction : block.getTransactions()) {
-
                 String txId = Hex.encodeHexString(transaction.getTxId());
-
                 int[] spentOutIndexArray = allSpentTXOs.get(txId);
-
                 for (int outIndex = 0; outIndex < transaction.getOutputs().length; outIndex++) {
                     if (spentOutIndexArray != null && ArrayUtils.contains(spentOutIndexArray, outIndex)) {
                         continue;
                     }
-
                     // 保存不存在 allSpentTXOs 中的交易
                     if (transaction.getOutputs()[outIndex].canBeUnlockedWith(address)) {
                         unspentTxs = ArrayUtils.add(unspentTxs, transaction);
@@ -209,15 +212,18 @@ public class Blockchain {
     private Map<String, int[]> getAllSpentTXOs(String address) {
         // 定义TxId ——> spentOutIndex[]，存储交易ID与已被花费的交易输出数组索引值
         Map<String, int[]> spentTXOs = new HashMap<>();
+        // 遍历所有的区块
         for (BlockchainIterator blockchainIterator = this.getBlockchainIterator(); blockchainIterator.hashNext(); ) {
             Block block = blockchainIterator.next();
-
+            // 遍历区块中的交易
             for (Transaction transaction : block.getTransactions()) {
                 // 如果是 coinbase 交易，直接跳过，因为它不存在引用前一个区块的交易输出
                 if (transaction.isCoinbase()) {
                     continue;
                 }
+                // 一笔交易可能有躲避输出
                 for (TXInput txInput : transaction.getInputs()) {
+                    // 获取得到交易信息
                     if (txInput.canUnlockOutputWith(address)) {
                         String inTxId = Hex.encodeHexString(txInput.getTxId());
                         int[] spentOutIndexArray = spentTXOs.get(inTxId);
